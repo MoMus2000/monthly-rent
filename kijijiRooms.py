@@ -4,6 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 from datetime import datetime
 import os
+import sys
 
 title= []
 desc= []
@@ -14,15 +15,13 @@ prices = []
 locations = []
 
 output = pd.DataFrame()
-while True:
-	try:
-		limit = input("How many pages to scrape ....? ")
-		if(int(limit)<2):
-			raise Exception("Sorry 2 is the least ...")
-		else:
-			break
-	except Exception as e:
-		print(e)
+
+if len(sys.argv) > 0:
+	limit = sys.argv[1]
+
+else:
+	limit = 1000
+
 for i in tqdm(range(1,int(limit))):
 	try:
 		url = "https://www.kijiji.ca/b-apartments-condos/city-of-toronto/1+bedroom-apartment"+str(i)+"/c37l1700273a27949001a29276001?ll=43.795524%2C-79.425361&address=15+Tangreen+Ct%2C+North+York%2C+ON+M2M+3Z2%2C+Canada&keywordToAttribute=1+bedroom+apartment&radius=18.0"
@@ -63,31 +62,3 @@ now = datetime.now()
 output.to_csv(str(os.getcwd())+"/"+now.strftime("%Y-%m-%d %H:%M:%S")+".csv")
 
 
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from email.mime.text import MIMEText
-import smtplib
-
-
-def send_mail():
-    # Create a multipart message
-    msg = MIMEMultipart()
-    body_part = MIMEText(MESSAGE_BODY, 'plain')
-    msg['Subject'] = EMAIL_SUBJECT
-    msg['From'] = EMAIL_FROM
-    msg['To'] = EMAIL_TO
-    # Add body to email
-    msg.attach(body_part)
-    # open and read the CSV file in binary
-    with open(PATH_TO_CSV_FILE,'rb') as file:
-    # Attach the file with filename to the email
-        msg.attach(MIMEApplication(file.read(), Name=FILE_NAME))
-
-    # Create SMTP object
-    smtp_obj = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    # Login to the server
-    smtp_obj.login(SMTP_USERNAME, SMTP_PASSWORD)
-
-    # Convert the message to a string and send it
-    smtp_obj.sendmail(msg['From'], msg['To'], msg.as_string())
-    smtp_obj.quit()
